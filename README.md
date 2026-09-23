@@ -12,7 +12,8 @@ Live URL: **https://yzentler.github.io/pluginServer/**
 ├── index.html            # Web portal for 1-click downloads & instructions
 ├── registry.json         # Machine-readable catalog for scripts and future apps
 ├── plugins/              # Categorized plugin packages
-│   └── chrome/           # Chrome extensions (.zip archives)
+│   ├── chrome/           # Chrome extensions (.zip archives)
+│   └── intellij/         # IntelliJ / JetBrains plugins (.zip archives)
 ├── scripts/              # Tested registry management scripts
 │   ├── update-registry.js
 │   └── update-registry.test.js
@@ -23,6 +24,7 @@ Live URL: **https://yzentler.github.io/pluginServer/**
 
 ## How to Install Plugins on a New PC
 
+### For Google Chrome Extensions:
 1. Open Chrome on the new machine and navigate to:
    **[https://yzentler.github.io/pluginServer/](https://yzentler.github.io/pluginServer/)**
 2. Click **Download .zip** next to the desired extension.
@@ -30,6 +32,13 @@ Live URL: **https://yzentler.github.io/pluginServer/**
 4. Go to `chrome://extensions` in Chrome.
 5. Enable **Developer mode** (toggle in the top-right corner).
 6. Click **Load unpacked** and select the unzipped folder.
+
+### For IntelliJ IDEA / Android Studio / PyCharm:
+1. Visit **[https://yzentler.github.io/pluginServer/](https://yzentler.github.io/pluginServer/)** and filter by **IntelliJ**.
+2. Click **Download .zip** (do **not** extract it).
+3. Open IntelliJ -> **Settings** (or **Preferences** on macOS: `Cmd + ,`).
+4. Navigate to **Plugins** -> click gear icon (⚙️) -> **Install Plugin from Disk...**
+5. Select the downloaded `.zip` file and restart the IDE.
 
 ---
 

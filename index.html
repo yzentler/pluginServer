@@ -208,6 +208,7 @@
     <div class="filter-bar">
       <button class="filter-btn active" onclick="filterPlugins('all')">All</button>
       <button class="filter-btn" onclick="filterPlugins('chrome')">Chrome</button>
+      <button class="filter-btn" onclick="filterPlugins('intellij')">IntelliJ</button>
       <button class="filter-btn" onclick="filterPlugins('vscode')">VS Code</button>
     </div>
 
@@ -223,6 +224,17 @@
         <li>Open Chrome and navigate to <code>chrome://extensions</code>.</li>
         <li>Toggle <strong>Developer mode</strong> in the upper right corner.</li>
         <li>Click <strong>Load unpacked</strong> and select the extracted folder.</li>
+      </ol>
+    </section>
+
+    <section class="instructions-card" style="margin-top: 1.5rem;">
+      <h2>How to install on IntelliJ IDEA / Android Studio / PyCharm</h2>
+      <ol>
+        <li>Click <strong>Download .zip</strong> for the plugin above (do <strong>not</strong> extract the zip).</li>
+        <li>In IntelliJ, open <strong>Settings</strong> (or <strong>Preferences</strong> on macOS: <code>Cmd + ,</code>).</li>
+        <li>Select <strong>Plugins</strong> from the left menu.</li>
+        <li>Click the gear icon (⚙️) at the top and select <strong>Install Plugin from Disk...</strong></li>
+        <li>Choose the downloaded <code>.zip</code> file and click <strong>Restart IDE</strong> if prompted.</li>
       </ol>
     </section>
   </div>

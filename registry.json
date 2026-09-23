@@ -30,6 +30,15 @@
       "description": "Bypass Chrome background throttling and macOS occlusion. Keeps tabs active and running at full speed when hidden.",
       "downloadUrl": "plugins/chrome/focusMaster.zip",
       "updatedAt": "2026-09-23"
+    },
+    {
+      "id": "intellij-ai-disabler",
+      "target": "intellij",
+      "name": "IntelliJ AI Disabler",
+      "version": "1.0.0",
+      "description": "Disables AI-based code completion like Copilot, Full Line, and Tabnine in IntelliJ using UI-level interception.",
+      "downloadUrl": "plugins/intellij/AiDisabler-1.0.0.zip",
+      "updatedAt": "2026-09-23"
     }
   ]
 }
