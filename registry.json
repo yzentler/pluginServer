@@ -21,6 +21,15 @@
       "description": "Right-click any headline to reveal the hidden answer behind clickbait.",
       "downloadUrl": "plugins/chrome/clickbait-remover.zip",
       "updatedAt": "2026-09-23"
+    },
+    {
+      "id": "focusMaster",
+      "target": "chrome",
+      "name": "FocusMaster",
+      "version": "4.0.0",
+      "description": "Bypass Chrome background throttling and macOS occlusion. Keeps tabs active and running at full speed when hidden.",
+      "downloadUrl": "plugins/chrome/focusMaster.zip",
+      "updatedAt": "2026-09-23"
     }
   ]
 }
