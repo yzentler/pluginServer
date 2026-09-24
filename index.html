@@ -205,12 +205,20 @@
       <p class="subtitle">Download and install personal extensions and plugins on any machine.</p>
     </header>
 
-    <div class="filter-bar">
-      <button class="filter-btn active" onclick="filterPlugins('all')">All</button>
-      <button class="filter-btn" onclick="filterPlugins('chrome')">Chrome</button>
-      <button class="filter-btn" onclick="filterPlugins('intellij')">IntelliJ</button>
-      <button class="filter-btn" onclick="filterPlugins('vscode')">VS Code</button>
+    <div class="filter-bar" style="justify-content: space-between; align-items: center;">
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button class="filter-btn active" onclick="filterPlugins('all')">All</button>
+        <button class="filter-btn" onclick="filterPlugins('chrome')">Chrome</button>
+        <button class="filter-btn" onclick="filterPlugins('intellij')">IntelliJ</button>
+        <button class="filter-btn" onclick="filterPlugins('vscode')">VS Code</button>
+      </div>
+      <div>
+        <button id="check-updates-btn" class="filter-btn" onclick="checkForLiveUpdates()" style="border-color: var(--accent); color: var(--accent);">
+          🔄 Check for Updates
+        </button>
+      </div>
     </div>
+    <div id="update-status" style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; display: none;"></div>
 
     <div class="plugin-grid" id="plugins-container">
       <!-- Injected dynamically via script -->
@@ -241,10 +249,16 @@
 
   <script>
     let registryData = [];
+    let currentFilter = 'all';
+
+    const TRACKED_REPOS = [
+      { id: 'clickbait-remover', repo: 'yzentler/clickbaitRemover', assetPattern: /clickbait.*\.zip$/i },
+      { id: 'focusMaster', repo: 'yzentler/focusMaster', assetPattern: /focusMaster.*\.zip$/i }
+    ];
 
     async function loadRegistry() {
       try {
-        const res = await fetch('./registry.json');
+        const res = await fetch(`./registry.json?t=${Date.now()}`);
         const data = await res.json();
         registryData = data.plugins || [];
         renderPlugins(registryData);
@@ -252,6 +266,51 @@
         console.error('Failed to load registry:', err);
         document.getElementById('plugins-container').innerHTML =
           '<p style="color: #f85149;">Failed to load registry.json. Please check console.</p>';
+      }
+    }
+
+    async function checkForLiveUpdates() {
+      const btn = document.getElementById('check-updates-btn');
+      const status = document.getElementById('update-status');
+      btn.disabled = true;
+      btn.textContent = '🔄 Checking GitHub...';
+      status.style.display = 'block';
+      status.textContent = 'Querying latest releases from GitHub...';
+
+      let updateCount = 0;
+
+      for (const item of TRACKED_REPOS) {
+        try {
+          const res = await fetch(`https://api.github.com/repos/${item.repo}/releases/latest`);
+          if (!res.ok) continue;
+          const release = await res.json();
+          const latestVersion = release.tag_name ? release.tag_name.replace(/^v/, '') : null;
+          const asset = (release.assets || []).find(a => item.assetPattern.test(a.name));
+
+          const existing = registryData.find(p => p.id === item.id);
+          if (existing && latestVersion && asset) {
+            if (existing.version !== latestVersion) {
+              existing.version = latestVersion;
+              existing.downloadUrl = asset.browser_download_url;
+              existing.updatedAt = new Date().toISOString().split('T')[0];
+              updateCount++;
+            }
+          }
+        } catch (e) {
+          console.warn('Error checking repo:', item.repo, e);
+        }
+      }
+
+      btn.disabled = false;
+      btn.textContent = '🔄 Check for Updates';
+
+      if (updateCount > 0) {
+        status.style.color = '#3fb950';
+        status.textContent = `Found ${updateCount} new update(s) live from GitHub! Cards updated below.`;
+        filterPlugins(currentFilter);
+      } else {
+        status.style.color = 'var(--text-muted)';
+        status.textContent = 'All extensions are up to date with the latest GitHub releases.';
       }
     }
 
@@ -280,7 +339,9 @@
     }
 
     function filterPlugins(target) {
+      currentFilter = target;
       document.querySelectorAll('.filter-btn').forEach(btn => {
+        if (btn.id === 'check-updates-btn') return;
         btn.classList.toggle('active', btn.textContent.toLowerCase() === target || (target === 'all' && btn.textContent === 'All'));
       });
 
