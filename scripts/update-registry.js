@@ -35,6 +35,28 @@ export function updateOrAddPlugin(registry, plugin) {
 }
 
 /**
+ * Formats a GitHub Release API response into a plugin registry entry.
+ *
+ * @param {Object} release - GitHub release object with `tag_name` and `assets`.
+ * @param {Object} trackedConfig - Configuration containing `id`, `name`, `target`, `description`, and optional `assetPattern`.
+ * @returns {Object} Plugin entry ready for updateOrAddPlugin.
+ */
+export function formatReleaseToPlugin(release, trackedConfig) {
+  const version = release.tag_name ? release.tag_name.replace(/^v/, '') : '1.0.0';
+  const assetPattern = trackedConfig.assetPattern || /\.zip$/i;
+  const asset = (release.assets || []).find(a => assetPattern.test(a.name));
+
+  return {
+    id: trackedConfig.id,
+    target: trackedConfig.target,
+    name: trackedConfig.name,
+    version,
+    description: trackedConfig.description,
+    downloadUrl: asset ? asset.browser_download_url : undefined
+  };
+}
+
+/**
  * Reads registry.json, updates/adds a plugin, and writes back formatted JSON.
  */
 export function updateRegistryFile(registryFilePath, plugin) {

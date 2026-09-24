@@ -65,3 +65,29 @@ test('updateOrAddPlugin - rejects invalid plugin without id or name', () => {
   const initialRegistry = { plugins: [] };
   assert.throws(() => updateOrAddPlugin(initialRegistry, {}), /Missing required plugin fields/);
 });
+
+test('formatReleaseToPlugin - extracts plugin info from release metadata', async () => {
+  const { formatReleaseToPlugin } = await import('./update-registry.js');
+  const release = {
+    tag_name: 'v2.2.0',
+    assets: [
+      {
+        name: 'clickbait-remover.zip',
+        browser_download_url: 'https://github.com/yzentler/clickbaitRemover/releases/download/v2.2.0/clickbait-remover.zip'
+      }
+    ]
+  };
+
+  const trackedConfig = {
+    id: 'clickbait-remover',
+    target: 'chrome',
+    name: 'Spoiler (Clickbait Remover)',
+    description: 'Right-click any headline to reveal the hidden answer behind clickbait.',
+    assetPattern: /\.zip$/i
+  };
+
+  const formatted = formatReleaseToPlugin(release, trackedConfig);
+  assert.equal(formatted.id, 'clickbait-remover');
+  assert.equal(formatted.version, '2.2.0');
+  assert.equal(formatted.downloadUrl, 'https://github.com/yzentler/clickbaitRemover/releases/download/v2.2.0/clickbait-remover.zip');
+});

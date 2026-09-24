@@ -27,6 +27,11 @@ jobs:
       - name: Run Test Suite
         run: npm test
 
+      - name: Sync Tracked Repositories Releases
+        run: node scripts/sync-releases.js
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Commit changes if any
         run: |
           git config user.name "github-actions[bot]"
