@@ -17,6 +17,14 @@ const TRACKED_REPOSITORIES = [
     name: 'FocusMaster',
     description: 'Bypass Chrome background throttling and macOS occlusion. Keeps tabs active and running at full speed when hidden.',
     assetPattern: /focusMaster.*\.zip$/i
+  },
+  {
+    repo: 'yzentler/captchaSolver',
+    id: 'captcha-solver',
+    target: 'chrome',
+    name: 'Captcha Solver',
+    description: 'Privacy-preserving, zero-cost client-side distorted text challenge recognition and autofill.',
+    assetPattern: /captcha.*\.zip$/i
   }
 ];
 

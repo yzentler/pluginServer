@@ -39,6 +39,15 @@
       "description": "Disables AI-based code completion like Copilot, Full Line, and Tabnine in IntelliJ using UI-level interception.",
       "downloadUrl": "plugins/intellij/AiDisabler-1.0.0.zip",
       "updatedAt": "2026-09-23"
+    },
+    {
+      "id": "captcha-solver",
+      "target": "chrome",
+      "name": "Captcha Solver",
+      "version": "1.0.0",
+      "description": "Privacy-preserving, zero-cost client-side distorted text challenge recognition and autofill.",
+      "downloadUrl": "plugins/chrome/captchaSolver.zip",
+      "updatedAt": "2026-09-28"
     }
   ]
 }
