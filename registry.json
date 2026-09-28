@@ -48,6 +48,15 @@
       "description": "Privacy-preserving, zero-cost client-side distorted text challenge recognition and autofill.",
       "downloadUrl": "plugins/chrome/captchaSolver.zip",
       "updatedAt": "2026-09-28"
+    },
+    {
+      "id": "family-shopping-list",
+      "target": "webapp",
+      "name": "Family Shopping List",
+      "version": "live",
+      "description": "Real-time collaborative shopping list PWA with offline support and instant sync.",
+      "openUrl": "https://zentler-shopping--list.web.app",
+      "updatedAt": "2026-09-28"
     }
   ]
 }

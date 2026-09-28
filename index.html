@@ -210,6 +210,7 @@
         <button class="filter-btn active" onclick="filterPlugins('all')">All</button>
         <button class="filter-btn" onclick="filterPlugins('chrome')">Chrome</button>
         <button class="filter-btn" onclick="filterPlugins('intellij')">IntelliJ</button>
+        <button class="filter-btn" onclick="filterPlugins('webapp')">Web Apps</button>
         <button class="filter-btn" onclick="filterPlugins('vscode')">VS Code</button>
       </div>
       <div>
@@ -257,6 +258,14 @@
       { id: 'captcha-solver', repo: 'yzentler/captchaSolver', assetPattern: /captcha.*\.zip$/i }
     ];
 
+    const TRACKED_WEBAPPS = [
+      {
+        id: 'family-shopping-list',
+        repo: 'yzentler/family-shopping-list',
+        fallbackUrl: 'https://zentler-shopping--list.web.app'
+      }
+    ];
+
     async function loadRegistry() {
       try {
         const res = await fetch(`./registry.json?t=${Date.now()}`);
@@ -276,10 +285,11 @@
       btn.disabled = true;
       btn.textContent = '🔄 Checking GitHub...';
       status.style.display = 'block';
-      status.textContent = 'Querying latest releases from GitHub...';
+      status.textContent = 'Querying latest releases and webapp URLs from GitHub...';
 
       let updateCount = 0;
 
+      // Check releases
       for (const item of TRACKED_REPOS) {
         try {
           const res = await fetch(`https://api.github.com/repos/${item.repo}/releases/latest`);
@@ -302,6 +312,26 @@
         }
       }
 
+      // Check webapp URLs (e.g. if homepage in repo settings changed)
+      for (const webapp of TRACKED_WEBAPPS) {
+        try {
+          const res = await fetch(`https://api.github.com/repos/${webapp.repo}`);
+          if (!res.ok) continue;
+          const repoData = await res.json();
+          const existing = registryData.find(p => p.id === webapp.id);
+          if (existing && repoData.homepage && repoData.homepage.trim() !== '') {
+            const newUrl = repoData.homepage.trim();
+            if (existing.openUrl !== newUrl) {
+              existing.openUrl = newUrl;
+              existing.updatedAt = new Date().toISOString().split('T')[0];
+              updateCount++;
+            }
+          }
+        } catch (e) {
+          console.warn('Error checking webapp repo:', webapp.repo, e);
+        }
+      }
+
       btn.disabled = false;
       btn.textContent = '🔄 Check for Updates';
 
@@ -311,29 +341,30 @@
         filterPlugins(currentFilter);
       } else {
         status.style.color = 'var(--text-muted)';
-        status.textContent = 'All extensions are up to date with the latest GitHub releases.';
+        status.textContent = 'All tools and webapps are up to date.';
       }
     }
 
     function renderPlugins(plugins) {
       const container = document.getElementById('plugins-container');
       if (plugins.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-muted);">No plugins found for this category.</p>';
+        container.innerHTML = '<p style="color: var(--text-muted);">No items found for this category.</p>';
         return;
       }
 
       container.innerHTML = plugins.map(plugin => `
         <div class="plugin-card" data-target="${plugin.target}">
           <div class="plugin-header">
-            <span class="target-tag">${plugin.target}</span>
+            <span class="target-tag">${plugin.target === 'webapp' ? 'Web App' : plugin.target}</span>
             <div class="plugin-title">
               <span>${plugin.name}</span>
-              <span class="version-tag">v${plugin.version}</span>
+              <span class="version-tag">${plugin.version.startsWith('v') ? plugin.version : 'v' + plugin.version}</span>
             </div>
             <p class="plugin-desc">${plugin.description}</p>
           </div>
           <div class="actions">
             ${plugin.downloadUrl ? `<a href="${plugin.downloadUrl}" class="btn btn-primary" download>Download .zip</a>` : ''}
+            ${plugin.openUrl ? `<a href="${plugin.openUrl}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Launch Web App ↗</a>` : ''}
           </div>
         </div>
       `).join('');
@@ -343,7 +374,7 @@
       currentFilter = target;
       document.querySelectorAll('.filter-btn').forEach(btn => {
         if (btn.id === 'check-updates-btn') return;
-        btn.classList.toggle('active', btn.textContent.toLowerCase() === target || (target === 'all' && btn.textContent === 'All'));
+        btn.classList.toggle('active', btn.textContent.toLowerCase() === target || (target === 'all' && btn.textContent === 'All') || (target === 'webapp' && btn.textContent === 'Web Apps'));
       });
 
       if (target === 'all') {

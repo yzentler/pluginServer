@@ -40,6 +40,11 @@ Live URL: **https://yzentler.github.io/pluginServer/**
 4. Navigate to **Plugins** -> click gear icon (⚙️) -> **Install Plugin from Disk...**
 5. Select the downloaded `.zip` file and restart the IDE.
 
+### For Web Apps / PWAs:
+1. Visit **[https://yzentler.github.io/pluginServer/](https://yzentler.github.io/pluginServer/)** and filter by **Web Apps**.
+2. Click **Launch Web App ↗** to open the deployed application.
+3. In Chrome/Safari/Edge, click the **Install app** icon in the address bar to install it as a standalone desktop app.
+
 ---
 
 ## How to Add or Update a Plugin

@@ -91,3 +91,21 @@ test('formatReleaseToPlugin - extracts plugin info from release metadata', async
   assert.equal(formatted.version, '2.2.0');
   assert.equal(formatted.downloadUrl, 'https://github.com/yzentler/clickbaitRemover/releases/download/v2.2.0/clickbait-remover.zip');
 });
+
+test('updateOrAddPlugin - supports webapp target with openUrl', () => {
+  const initialRegistry = { plugins: [] };
+  const webapp = {
+    id: 'family-shopping-list',
+    target: 'webapp',
+    name: 'Family Shopping List',
+    version: '1.0.0',
+    description: 'Shared real-time shopping list PWA',
+    openUrl: 'https://zentler-shopping--list.web.app'
+  };
+
+  const result = updateOrAddPlugin(initialRegistry, webapp);
+  assert.equal(result.plugins.length, 1);
+  assert.equal(result.plugins[0].target, 'webapp');
+  assert.equal(result.plugins[0].openUrl, 'https://zentler-shopping--list.web.app');
+});
+
