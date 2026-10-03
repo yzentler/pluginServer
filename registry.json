@@ -20,7 +20,7 @@
       "version": "2.3.0",
       "description": "Right-click any headline or press Alt+V to reveal the hidden answer behind clickbait.",
       "downloadUrl": "https://github.com/yzentler/clickbaitRemover/releases/download/v2.3.0/clickbait-remover.zip",
-      "updatedAt": "2026-10-02"
+      "updatedAt": "2026-10-03"
     },
     {
       "id": "focusMaster",
@@ -56,7 +56,7 @@
       "version": "live",
       "description": "Real-time collaborative shopping list PWA with offline support and instant sync.",
       "openUrl": "https://zentler-shopping--list.web.app",
-      "updatedAt": "2026-10-02"
+      "updatedAt": "2026-10-03"
     }
   ]
 }
