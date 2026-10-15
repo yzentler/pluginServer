@@ -210,6 +210,7 @@
         <button class="filter-btn active" onclick="filterPlugins('all')">All</button>
         <button class="filter-btn" onclick="filterPlugins('chrome')">Chrome</button>
         <button class="filter-btn" onclick="filterPlugins('intellij')">IntelliJ</button>
+        <button class="filter-btn" onclick="filterPlugins('mac')">Mac Apps</button>
         <button class="filter-btn" onclick="filterPlugins('webapp')">Web Apps</button>
         <button class="filter-btn" onclick="filterPlugins('vscode')">VS Code</button>
       </div>
@@ -244,6 +245,23 @@
         <li>Select <strong>Plugins</strong> from the left menu.</li>
         <li>Click the gear icon (⚙️) at the top and select <strong>Install Plugin from Disk...</strong></li>
         <li>Choose the downloaded <code>.zip</code> file and click <strong>Restart IDE</strong> if prompted.</li>
+      </ol>
+    </section>
+
+    <section class="instructions-card" style="margin-top: 1.5rem;">
+      <h2>How to install on macOS</h2>
+      <ol>
+        <li>Click <strong>Download .dmg</strong> (or <strong>.zip</strong>) for the application above.</li>
+        <li>For <code>.dmg</code>: Double-click to mount the disk image, then drag the application into your <code>/Applications</code> folder.</li>
+        <li>For <code>.zip</code>: Double-click to extract the archive, then drag the <code>.app</code> file into your <code>/Applications</code> folder.</li>
+        <li>
+          <strong>Gatekeeper / Unsigned Developer Handling:</strong><br>
+          If macOS alerts that the app cannot be opened because it is from an unidentified developer:
+          <ul style="margin-top: 0.35rem; margin-left: 1.25rem; list-style-type: disc;">
+            <li><strong>Finder:</strong> Right-click (or Control-click) the application in <code>/Applications</code>, select <strong>Open</strong>, and click <strong>Open</strong> in the confirmation dialog.</li>
+            <li><strong>Terminal:</strong> Run <code>xattr -cr /Applications/&lt;AppName&gt;.app</code> to strip quarantine attributes.</li>
+          </ul>
+        </li>
       </ol>
     </section>
   </div>
@@ -296,7 +314,9 @@
           if (!res.ok) continue;
           const release = await res.json();
           const latestVersion = release.tag_name ? release.tag_name.replace(/^v/, '') : null;
-          const asset = (release.assets || []).find(a => item.assetPattern.test(a.name));
+          const defaultPattern = item.target === 'mac' ? /\.(dmg|pkg|zip)$/i : /\.zip$/i;
+          const assetPattern = item.assetPattern || defaultPattern;
+          const asset = (release.assets || []).find(a => assetPattern.test(a.name));
 
           const existing = registryData.find(p => p.id === item.id);
           if (existing && latestVersion && asset) {
@@ -345,6 +365,22 @@
       }
     }
 
+    function getDownloadButtonText(url, target) {
+      if (!url) return 'Download';
+      const lower = url.toLowerCase();
+      if (lower.endsWith('.dmg')) return 'Download .dmg';
+      if (lower.endsWith('.pkg')) return 'Download .pkg';
+      if (lower.endsWith('.zip')) return 'Download .zip';
+      if (target === 'mac') return 'Download Mac App';
+      return 'Download';
+    }
+
+    function formatTargetTag(target) {
+      if (target === 'webapp') return 'Web App';
+      if (target === 'mac') return 'Mac App';
+      return target;
+    }
+
     function renderPlugins(plugins) {
       const container = document.getElementById('plugins-container');
       if (plugins.length === 0) {
@@ -355,7 +391,7 @@
       container.innerHTML = plugins.map(plugin => `
         <div class="plugin-card" data-target="${plugin.target}">
           <div class="plugin-header">
-            <span class="target-tag">${plugin.target === 'webapp' ? 'Web App' : plugin.target}</span>
+            <span class="target-tag">${formatTargetTag(plugin.target)}</span>
             <div class="plugin-title">
               <span>${plugin.name}</span>
               <span class="version-tag">${plugin.version.startsWith('v') ? plugin.version : 'v' + plugin.version}</span>
@@ -363,7 +399,7 @@
             <p class="plugin-desc">${plugin.description}</p>
           </div>
           <div class="actions">
-            ${plugin.downloadUrl ? `<a href="${plugin.downloadUrl}" class="btn btn-primary" download>Download .zip</a>` : ''}
+            ${plugin.downloadUrl ? `<a href="${plugin.downloadUrl}" class="btn btn-primary" download>${getDownloadButtonText(plugin.downloadUrl, plugin.target)}</a>` : ''}
             ${plugin.openUrl ? `<a href="${plugin.openUrl}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Launch Web App ↗</a>` : ''}
           </div>
         </div>
@@ -374,7 +410,12 @@
       currentFilter = target;
       document.querySelectorAll('.filter-btn').forEach(btn => {
         if (btn.id === 'check-updates-btn') return;
-        btn.classList.toggle('active', btn.textContent.toLowerCase() === target || (target === 'all' && btn.textContent === 'All') || (target === 'webapp' && btn.textContent === 'Web Apps'));
+        btn.classList.toggle('active',
+          btn.textContent.toLowerCase() === target ||
+          (target === 'all' && btn.textContent === 'All') ||
+          (target === 'webapp' && btn.textContent === 'Web Apps') ||
+          (target === 'mac' && btn.textContent === 'Mac Apps')
+        );
       });
 
       if (target === 'all') {

@@ -109,3 +109,49 @@ test('updateOrAddPlugin - supports webapp target with openUrl', () => {
   assert.equal(result.plugins[0].openUrl, 'https://zentler-shopping--list.web.app');
 });
 
+test('formatReleaseToPlugin - automatically matches .dmg asset for mac target', async () => {
+  const { formatReleaseToPlugin } = await import('./update-registry.js');
+  const release = {
+    tag_name: 'v1.0.0',
+    assets: [
+      {
+        name: 'SuperTool-1.0.0.dmg',
+        browser_download_url: 'https://github.com/yzentler/superTool/releases/download/v1.0.0/SuperTool-1.0.0.dmg'
+      }
+    ]
+  };
+
+  const trackedConfig = {
+    id: 'super-tool',
+    target: 'mac',
+    name: 'Super Tool',
+    description: 'A native macOS utility.'
+  };
+
+  const formatted = formatReleaseToPlugin(release, trackedConfig);
+  assert.equal(formatted.id, 'super-tool');
+  assert.equal(formatted.target, 'mac');
+  assert.equal(formatted.version, '1.0.0');
+  assert.equal(formatted.downloadUrl, 'https://github.com/yzentler/superTool/releases/download/v1.0.0/SuperTool-1.0.0.dmg');
+});
+
+test('updateOrAddPlugin - supports mac target with dmg downloadUrl', () => {
+  const initialRegistry = { plugins: [] };
+  const macApp = {
+    id: 'super-tool',
+    target: 'mac',
+    name: 'Super Tool',
+    version: '1.0.0',
+    description: 'A native macOS utility.',
+    downloadUrl: 'plugins/mac/SuperTool.dmg'
+  };
+
+  const result = updateOrAddPlugin(initialRegistry, macApp);
+  assert.equal(result.plugins.length, 1);
+  assert.equal(result.plugins[0].id, 'super-tool');
+  assert.equal(result.plugins[0].target, 'mac');
+  assert.equal(result.plugins[0].downloadUrl, 'plugins/mac/SuperTool.dmg');
+  assert.ok(result.plugins[0].updatedAt);
+});
+
+

@@ -13,7 +13,8 @@ Live URL: **https://yzentler.github.io/pluginServer/**
 ├── registry.json         # Machine-readable catalog for scripts and future apps
 ├── plugins/              # Categorized plugin packages
 │   ├── chrome/           # Chrome extensions (.zip archives)
-│   └── intellij/         # IntelliJ / JetBrains plugins (.zip archives)
+│   ├── intellij/         # IntelliJ / JetBrains plugins (.zip archives)
+│   └── mac/              # Mac apps (.dmg, .zip, .pkg)
 ├── scripts/              # Tested registry management scripts
 │   ├── update-registry.js
 │   └── update-registry.test.js
@@ -45,6 +46,15 @@ Live URL: **https://yzentler.github.io/pluginServer/**
 2. Click **Launch Web App ↗** to open the deployed application.
 3. In Chrome/Safari/Edge, click the **Install app** icon in the address bar to install it as a standalone desktop app.
 
+### For macOS Apps:
+1. Visit **[https://yzentler.github.io/pluginServer/](https://yzentler.github.io/pluginServer/)** and filter by **Mac Apps**.
+2. Click **Download .dmg** (or **.zip**) next to the desired application.
+3. For `.dmg`: Double-click to mount the disk image, then drag the application into `/Applications`.
+4. For `.zip`: Double-click to uncompress the archive, then move the `.app` bundle into `/Applications`.
+5. **Gatekeeper Bypass (Unidentified Developer):**
+   - *Option A*: Right-click (or Control-click) the application in `/Applications` -> click **Open** -> click **Open** in the prompt.
+   - *Option B*: Open Terminal and run `xattr -cr /Applications/<AppName>.app`.
+
 ---
 
 ## How to Add or Update a Plugin
@@ -66,11 +76,11 @@ Run these two commands from `pluginServer`:
    import { updateRegistryFile } from './scripts/update-registry.js';
    updateRegistryFile('./registry.json', {
      id: '<extension-id>',
-     target: 'chrome',
+     target: 'chrome', // or 'mac', 'intellij', 'webapp'
      name: '<Extension Name>',
      version: '<new-version>',
      description: '<description>',
-     downloadUrl: 'plugins/chrome/<extension-name>.zip'
+     downloadUrl: 'plugins/chrome/<extension-name>.zip' // e.g. 'plugins/mac/<app-name>.dmg'
    });
    "
    ```
@@ -86,16 +96,17 @@ Run these two commands from `pluginServer`:
 
 ### Method 2: Fully Automated via Git Tags (Zero Secrets Required)
 
-Each extension repository can have its own GitHub Release workflow (`.github/workflows/release.yml`).
+Each repository can have its own GitHub Release workflow (`.github/workflows/release.yml`).
 
-1. In your extension repo, tag your commit and push tags:
+1. In your app or extension repo, tag your commit and push tags:
    ```bash
    git tag v1.0.0
    git push --tags
    ```
-2. The GitHub Action in the extension repo automatically builds and attaches `your-extension.zip` to a public GitHub Release.
+2. The GitHub Action in the repo automatically builds and attaches the binary release asset (`.dmg`, `.pkg`, or `.zip`) to a public GitHub Release.
 3. Point the `downloadUrl` in `registry.json` to the release asset URL:
-   `https://github.com/yzentler/<repo-name>/releases/latest/download/<repo-name>.zip`
+   `https://github.com/yzentler/<repo-name>/releases/latest/download/<asset-name>.dmg` (or `.zip`)
+
 
 ---
 

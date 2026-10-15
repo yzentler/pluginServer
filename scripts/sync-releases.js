@@ -59,7 +59,7 @@ async function syncAll() {
       const release = await res.json();
       const pluginEntry = formatReleaseToPlugin(release, config);
       if (!pluginEntry.downloadUrl) {
-        console.warn(`No matching zip asset found in latest release for ${config.repo}`);
+        console.warn(`No matching release asset found in latest release for ${config.repo}`);
         continue;
       }
 

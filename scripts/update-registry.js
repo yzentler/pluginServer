@@ -43,7 +43,8 @@ export function updateOrAddPlugin(registry, plugin) {
  */
 export function formatReleaseToPlugin(release, trackedConfig) {
   const version = release.tag_name ? release.tag_name.replace(/^v/, '') : '1.0.0';
-  const assetPattern = trackedConfig.assetPattern || /\.zip$/i;
+  const defaultPattern = trackedConfig.target === 'mac' ? /\.(dmg|pkg|zip)$/i : /\.zip$/i;
+  const assetPattern = trackedConfig.assetPattern || defaultPattern;
   const asset = (release.assets || []).find(a => assetPattern.test(a.name));
 
   return {
