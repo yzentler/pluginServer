@@ -50,6 +50,15 @@
       "updatedAt": "2026-09-28"
     },
     {
+      "id": "multiclip",
+      "target": "mac",
+      "name": "MultiClip",
+      "version": "0.1.0",
+      "description": "Native macOS clipboard manager with keyboard cycling HUD (⇧⌘V), screenshot ingestion, and local encryption.",
+      "downloadUrl": "plugins/mac/MultiClip-0.1.0.dmg",
+      "updatedAt": "2026-10-15"
+    },
+    {
       "id": "family-shopping-list",
       "target": "webapp",
       "name": "Family Shopping List",
