@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { updateOrAddPlugin } from './update-registry.js';
+import { updateOrAddPlugin, formatReleaseToPlugin } from './update-registry.js';
 
 test('updateOrAddPlugin - adds a new plugin to registry', () => {
   const initialRegistry = {
@@ -153,5 +153,82 @@ test('updateOrAddPlugin - supports mac target with dmg downloadUrl', () => {
   assert.equal(result.plugins[0].downloadUrl, 'plugins/mac/SuperTool.dmg');
   assert.ok(result.plugins[0].updatedAt);
 });
+
+test('formatReleaseToPlugin - extracts asset download_count into downloads field', async () => {
+  const { formatReleaseToPlugin } = await import('./update-registry.js');
+  const release = {
+    tag_name: 'v2.3.0',
+    assets: [
+      {
+        name: 'clickbait-remover.zip',
+        browser_download_url: 'https://github.com/yzentler/clickbaitRemover/releases/download/v2.3.0/clickbait-remover.zip',
+        download_count: 85
+      }
+    ]
+  };
+
+  const trackedConfig = {
+    id: 'clickbait-remover',
+    target: 'chrome',
+    name: 'Spoiler (Clickbait Remover)',
+    description: 'Right-click any headline.'
+  };
+
+  const formatted = formatReleaseToPlugin(release, trackedConfig);
+  assert.equal(formatted.downloads, 85);
+});
+
+test('updateOrAddPlugin - retains and updates downloads count', () => {
+  const initialRegistry = {
+    plugins: [
+      {
+        id: 'clickbait-remover',
+        name: 'Spoiler',
+        target: 'chrome',
+        version: '1.0.0',
+        downloads: 10
+      }
+    ]
+  };
+
+  const updatedPlugin = {
+    id: 'clickbait-remover',
+    name: 'Spoiler',
+    target: 'chrome',
+    version: '1.1.0',
+    downloads: 42
+  };
+
+  const result = updateOrAddPlugin(initialRegistry, updatedPlugin);
+  assert.equal(result.plugins.length, 1);
+  assert.equal(result.plugins[0].downloads, 42);
+  assert.equal(result.plugins[0].version, '1.1.0');
+});
+
+test('formatReleaseToPlugin - accepts totalDownloads across releases when provided', () => {
+  const release = {
+    tag_name: 'v2.0.0',
+    assets: [
+      {
+        name: 'app.zip',
+        browser_download_url: 'https://example.com/app.zip',
+        download_count: 5
+      }
+    ]
+  };
+
+  const trackedConfig = {
+    id: 'app',
+    target: 'chrome',
+    name: 'App',
+    description: 'An app'
+  };
+
+  const formatted = formatReleaseToPlugin(release, trackedConfig, 120);
+  assert.equal(formatted.downloads, 120);
+});
+
+
+
 
 

@@ -41,11 +41,14 @@ export function updateOrAddPlugin(registry, plugin) {
  * @param {Object} trackedConfig - Configuration containing `id`, `name`, `target`, `description`, and optional `assetPattern`.
  * @returns {Object} Plugin entry ready for updateOrAddPlugin.
  */
-export function formatReleaseToPlugin(release, trackedConfig) {
+export function formatReleaseToPlugin(release, trackedConfig, totalDownloads) {
   const version = release.tag_name ? release.tag_name.replace(/^v/, '') : '1.0.0';
   const defaultPattern = trackedConfig.target === 'mac' ? /\.(dmg|pkg|zip)$/i : /\.zip$/i;
   const assetPattern = trackedConfig.assetPattern || defaultPattern;
   const asset = (release.assets || []).find(a => assetPattern.test(a.name));
+  const downloads = typeof totalDownloads === 'number'
+    ? totalDownloads
+    : (asset && typeof asset.download_count === 'number' ? asset.download_count : 0);
 
   return {
     id: trackedConfig.id,
@@ -53,7 +56,8 @@ export function formatReleaseToPlugin(release, trackedConfig) {
     name: trackedConfig.name,
     version,
     description: trackedConfig.description,
-    downloadUrl: asset ? asset.browser_download_url : undefined
+    downloadUrl: asset ? asset.browser_download_url : undefined,
+    downloads
   };
 }
 

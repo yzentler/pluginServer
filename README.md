@@ -107,6 +107,15 @@ Each repository can have its own GitHub Release workflow (`.github/workflows/rel
 3. Point the `downloadUrl` in `registry.json` to the release asset URL:
    `https://github.com/yzentler/<repo-name>/releases/latest/download/<asset-name>.dmg` (or `.zip`)
 
+---
+
+## Download Count Analytics
+
+The web portal displays live download counts (`📥 <count> downloads`) for each downloadable tool:
+- **Automatic GitHub Releases Sync**: Any tool tracked via GitHub Releases has its lifetime download count automatically calculated and synced into `registry.json` via `scripts/sync-releases.js` (and the daily GitHub Action).
+- **Live In-Browser Updates**: Visitors clicking **🔄 Check for Updates** will fetch real-time download counts directly from GitHub's Releases API without needing a server or database.
+
+
 
 ---
 

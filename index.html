@@ -126,7 +126,20 @@
       letter-spacing: 0.05em;
       color: var(--accent);
       font-weight: 600;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0;
+    }
+
+    .download-tag {
+      font-size: 0.75rem;
+      background: rgba(56, 139, 253, 0.1);
+      border: 1px solid rgba(56, 139, 253, 0.3);
+      padding: 0.15rem 0.5rem;
+      border-radius: 12px;
+      color: var(--accent);
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
     }
 
     .plugin-desc {
@@ -321,9 +334,18 @@
 
           const existing = registryData.find(p => p.id === item.id);
           if (existing && latestVersion && asset) {
+            let changed = false;
             if (existing.version !== latestVersion) {
               existing.version = latestVersion;
               existing.downloadUrl = asset.browser_download_url;
+              changed = true;
+            }
+            const currentDownloads = typeof asset.download_count === 'number' ? asset.download_count : 0;
+            if (existing.downloads !== currentDownloads) {
+              existing.downloads = currentDownloads;
+              changed = true;
+            }
+            if (changed) {
               existing.updatedAt = new Date().toISOString().split('T')[0];
               updateCount++;
             }
@@ -382,6 +404,12 @@
       return target;
     }
 
+    function formatDownloadsBadge(downloads) {
+      if (typeof downloads !== 'number') return '';
+      const label = downloads === 1 ? '1 download' : `${downloads.toLocaleString()} downloads`;
+      return `<span class="download-tag" title="Total downloads">📥 ${label}</span>`;
+    }
+
     function renderPlugins(plugins) {
       const container = document.getElementById('plugins-container');
       if (plugins.length === 0) {
@@ -392,7 +420,10 @@
       container.innerHTML = plugins.map(plugin => `
         <div class="plugin-card" data-target="${plugin.target}">
           <div class="plugin-header">
-            <span class="target-tag">${formatTargetTag(plugin.target)}</span>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span class="target-tag">${formatTargetTag(plugin.target)}</span>
+              ${formatDownloadsBadge(plugin.downloads)}
+            </div>
             <div class="plugin-title">
               <span>${plugin.name}</span>
               <span class="version-tag">${plugin.version.startsWith('v') ? plugin.version : 'v' + plugin.version}</span>

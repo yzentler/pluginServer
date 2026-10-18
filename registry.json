@@ -11,6 +11,7 @@
       "version": "1.0",
       "description": "Right-click any element to click it 10x or a custom amount. Enable only on specific sites.",
       "downloadUrl": "plugins/chrome/auto-clicker-extension.zip",
+      "downloads": 0,
       "updatedAt": "2026-09-23"
     },
     {
@@ -20,6 +21,7 @@
       "version": "2.3.0",
       "description": "Right-click any headline or press Alt+V to reveal the hidden answer behind clickbait.",
       "downloadUrl": "https://github.com/yzentler/clickbaitRemover/releases/download/v2.3.0/clickbait-remover.zip",
+      "downloads": 0,
       "updatedAt": "2026-10-18"
     },
     {
@@ -29,6 +31,7 @@
       "version": "4.0.0",
       "description": "Bypass Chrome background throttling and macOS occlusion. Keeps tabs active and running at full speed when hidden.",
       "downloadUrl": "plugins/chrome/focusMaster.zip",
+      "downloads": 0,
       "updatedAt": "2026-09-23"
     },
     {
@@ -38,6 +41,7 @@
       "version": "1.0.0",
       "description": "Disables AI-based code completion like Copilot, Full Line, and Tabnine in IntelliJ using UI-level interception.",
       "downloadUrl": "plugins/intellij/AiDisabler-1.0.0.zip",
+      "downloads": 0,
       "updatedAt": "2026-09-23"
     },
     {
@@ -47,6 +51,7 @@
       "version": "1.0.0",
       "description": "Privacy-preserving, zero-cost client-side distorted text challenge recognition and autofill.",
       "downloadUrl": "plugins/chrome/captchaSolver.zip",
+      "downloads": 0,
       "updatedAt": "2026-09-28"
     },
     {
@@ -56,6 +61,7 @@
       "version": "0.3.0",
       "description": "Native macOS clipboard manager with keyboard cycling HUD (⇧⌘V), screenshot ingestion, and local encryption.",
       "downloadUrl": "plugins/mac/MultiClip-0.3.0.dmg",
+      "downloads": 0,
       "updatedAt": "2026-10-15"
     },
     {

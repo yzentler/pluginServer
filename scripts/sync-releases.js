@@ -57,14 +57,37 @@ async function syncAll() {
       }
 
       const release = await res.json();
-      const pluginEntry = formatReleaseToPlugin(release, config);
+      
+      // Calculate lifetime downloads across all releases of this repository
+      let totalDownloads = undefined;
+      try {
+        const allReleasesRes = await fetch(`https://api.github.com/repos/${config.repo}/releases?per_page=100`, { headers });
+        if (allReleasesRes.ok) {
+          const allReleases = await allReleasesRes.json();
+          const defaultPattern = config.target === 'mac' ? /\.(dmg|pkg|zip)$/i : /\.zip$/i;
+          const assetPattern = config.assetPattern || defaultPattern;
+          let sum = 0;
+          for (const rel of allReleases) {
+            for (const asset of rel.assets || []) {
+              if (assetPattern.test(asset.name)) {
+                sum += (asset.download_count || 0);
+              }
+            }
+          }
+          totalDownloads = sum;
+        }
+      } catch (e) {
+        console.warn(`Could not compute lifetime downloads for ${config.repo}:`, e.message);
+      }
+
+      const pluginEntry = formatReleaseToPlugin(release, config, totalDownloads);
       if (!pluginEntry.downloadUrl) {
         console.warn(`No matching release asset found in latest release for ${config.repo}`);
         continue;
       }
 
       updateRegistryFile(registryPath, pluginEntry);
-      console.log(`✓ Updated ${config.id} to version ${pluginEntry.version}`);
+      console.log(`✓ Updated ${config.id} to version ${pluginEntry.version} (${pluginEntry.downloads} total downloads)`);
     } catch (err) {
       console.error(`Error syncing ${config.repo}:`, err.message);
     }
