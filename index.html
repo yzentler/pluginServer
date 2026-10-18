@@ -298,12 +298,55 @@
       }
     ];
 
+    const COUNTER_NAMESPACE = 'yzentler-pluginServer';
+    const COUNTER_API_BASE = 'https://abacus.jasoncameron.dev';
+
+    async function fetchPluginClicks(pluginId) {
+      try {
+        const res = await fetch(`${COUNTER_API_BASE}/get/${COUNTER_NAMESPACE}/${pluginId}`);
+        if (!res.ok) return 0;
+        const data = await res.json();
+        return typeof data.value === 'number' && data.value > 0 ? data.value : 0;
+      } catch (e) {
+        return 0;
+      }
+    }
+
+    async function refreshAllCounters() {
+      const downloadable = registryData.filter(p => p.downloadUrl);
+      await Promise.all(downloadable.map(async plugin => {
+        const liveClicks = await fetchPluginClicks(plugin.id);
+        const base = typeof plugin.baseDownloads === 'number' ? plugin.baseDownloads : (plugin.downloads || 0);
+        plugin.baseDownloads = base;
+        plugin.downloads = base + liveClicks;
+      }));
+      renderCurrentView();
+    }
+
+    function handleDownloadClick(pluginId) {
+      const plugin = registryData.find(p => p.id === pluginId);
+      if (plugin) {
+        plugin.downloads = (typeof plugin.downloads === 'number' ? plugin.downloads : 0) + 1;
+        const cardBadge = document.querySelector(`.plugin-card[data-id="${pluginId}"] .download-tag`);
+        if (cardBadge) {
+          const label = plugin.downloads === 1 ? '1 download' : `${plugin.downloads.toLocaleString()} downloads`;
+          cardBadge.innerHTML = `📥 ${label}`;
+        }
+      }
+      fetch(`${COUNTER_API_BASE}/hit/${COUNTER_NAMESPACE}/${pluginId}`).catch(err => {
+        console.warn('Could not record click to counter service:', err);
+      });
+    }
+
     async function loadRegistry() {
       try {
         const res = await fetch(`./registry.json?t=${Date.now()}`);
         const data = await res.json();
         registryData = data.plugins || [];
         renderPlugins(registryData);
+
+        // Fetch live click counters from persistent counter service
+        await refreshAllCounters();
       } catch (err) {
         console.error('Failed to load registry:', err);
         document.getElementById('plugins-container').innerHTML =
@@ -317,9 +360,12 @@
       btn.disabled = true;
       btn.textContent = '🔄 Checking GitHub...';
       status.style.display = 'block';
-      status.textContent = 'Querying latest releases and webapp URLs from GitHub...';
+      status.textContent = 'Querying latest releases and live download stats...';
 
       let updateCount = 0;
+
+      // Refresh live serverless click counters
+      await refreshAllCounters();
 
       // Check releases
       for (const item of TRACKED_REPOS) {
@@ -341,8 +387,8 @@
               changed = true;
             }
             const currentDownloads = typeof asset.download_count === 'number' ? asset.download_count : 0;
-            if (existing.downloads !== currentDownloads) {
-              existing.downloads = currentDownloads;
+            if (existing.baseDownloads !== currentDownloads) {
+              existing.baseDownloads = currentDownloads;
               changed = true;
             }
             if (changed) {
@@ -381,10 +427,10 @@
       if (updateCount > 0) {
         status.style.color = '#3fb950';
         status.textContent = `Found ${updateCount} new update(s) live from GitHub! Cards updated below.`;
-        filterPlugins(currentFilter);
+        renderCurrentView();
       } else {
         status.style.color = 'var(--text-muted)';
-        status.textContent = 'All tools and webapps are up to date.';
+        status.textContent = 'All tools, webapps, and download counts are up to date.';
       }
     }
 
@@ -418,7 +464,7 @@
       }
 
       container.innerHTML = plugins.map(plugin => `
-        <div class="plugin-card" data-target="${plugin.target}">
+        <div class="plugin-card" data-target="${plugin.target}" data-id="${plugin.id}">
           <div class="plugin-header">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
               <span class="target-tag">${formatTargetTag(plugin.target)}</span>
@@ -431,11 +477,19 @@
             <p class="plugin-desc">${plugin.description}</p>
           </div>
           <div class="actions">
-            ${plugin.downloadUrl ? `<a href="${plugin.downloadUrl}" class="btn btn-primary" download>${getDownloadButtonText(plugin.downloadUrl, plugin.target)}</a>` : ''}
+            ${plugin.downloadUrl ? `<a href="${plugin.downloadUrl}" class="btn btn-primary" download onclick="handleDownloadClick('${plugin.id}')">${getDownloadButtonText(plugin.downloadUrl, plugin.target)}</a>` : ''}
             ${plugin.openUrl ? `<a href="${plugin.openUrl}" class="btn btn-primary" target="_blank" rel="noopener noreferrer">Launch Web App ↗</a>` : ''}
           </div>
         </div>
       `).join('');
+    }
+
+    function renderCurrentView() {
+      if (currentFilter === 'all') {
+        renderPlugins(registryData);
+      } else {
+        renderPlugins(registryData.filter(p => p.target === currentFilter));
+      }
     }
 
     function filterPlugins(target) {
@@ -449,12 +503,7 @@
           (target === 'mac' && btn.textContent === 'Mac Apps')
         );
       });
-
-      if (target === 'all') {
-        renderPlugins(registryData);
-      } else {
-        renderPlugins(registryData.filter(p => p.target === target));
-      }
+      renderCurrentView();
     }
 
     loadRegistry();
